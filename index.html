@@ -3,18 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>PsyLab Flashcards</title>
+    <title>PsyLab - Flashcards</title>
+    
+    <!-- Manifest pro instalaci -->
+    <link rel="manifest" href="data:application/manifest+json,{
+        &quot;name&quot;: &quot;PsyLab Flashcards&quot;,
+        &quot;short_name&quot;: &quot;PsyLab&quot;,
+        &quot;description&quot;: &quot;Flashcards pro studenty psychologie&quot;,
+        &quot;start_url&quot;: &quot;.&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;background_color&quot;: &quot;#f8fafc&quot;,
+        &quot;theme_color&quot;: &quot;#0ea5e9&quot;,
+        &quot;icons&quot;: [{
+            &quot;src&quot;: &quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230ea5e9'/%3E%3Cstop offset='100%25' stop-color='%23a855f7'/%3E%3C/linearGradient%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial'%3E🧠%3C/text%3E%3C/svg%3E&quot;,
+            &quot;sizes&quot;: &quot;192x192&quot;,
+            &quot;type&quot;: &quot;image/svg+xml&quot;
+        }]
+    }">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
         
         body {
             font-family: 'Inter', sans-serif;
-            background: #f8fafc;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body.dark {
+            background: #0f172a !important;
+            color: #e2e8f0;
+        }
+        
+        body.dark .bg-white {
+            background: #1e2937 !important;
+            border-color: #334155 !important;
+        }
+        
+        body.dark .bg-slate-50 {
+            background: #0f172a !important;
+        }
+        
+        body.dark .text-slate-800 {
+            color: #f1f5f9 !important;
+        }
+        
+        body.dark .text-slate-600 {
+            color: #cbd5e1 !important;
+        }
+        
+        body.dark .border-slate-200 {
+            border-color: #334155 !important;
+        }
+        
+        body.dark .glass-effect {
+            background: rgba(30, 41, 59, 0.8) !important;
+            border-color: #334155 !important;
+        }
+        
+        body.dark .category-tag {
+            background: #312e81 !important;
+            color: #a5f3fc !important;
+        }
+        
+        body.dark .card-front {
+            background: #1e2937 !important;
+            border-color: #334155 !important;
+        }
+	
+	body.dark .flashcard-back p {  /* Přesněji pro text v odpovědi */
+    		color: #5eead4 !important;  /* Změňte na požadovanou barvu */
+	}
+        
+        body.dark .card-back {
+            background: linear-gradient(135deg, #1e2937 0%, #312e81 100%) !important;
+            border-color: #4f46e5 !important;
         }
         
         .perspective {
@@ -43,17 +112,8 @@
             to { transform: translateY(0); opacity: 1; }
         }
         
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
         .animate-slide-up {
             animation: slideUp 0.4s ease-out forwards;
-        }
-        
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
         }
         
         .gradient-bg {
@@ -78,6 +138,11 @@
             gap: 0.25rem;
         }
         
+        body.dark .category-tag {
+            background: #312e81;
+            color: #a5f3fc;
+        }
+        
         .tab {
             padding: 0.75rem 1rem;
             border-radius: 1rem;
@@ -92,6 +157,11 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         
+        body.dark .tab.active {
+            background: #1e2937;
+            color: #38bdf8;
+        }
+        
         .btn-primary {
             background: linear-gradient(135deg, #0ea5e9 0%, #a855f7 100%);
             color: white;
@@ -104,7 +174,6 @@
         
         .btn-primary:active {
             transform: scale(0.96);
-            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
         }
         
         .btn-secondary {
@@ -122,14 +191,15 @@
             transform: scale(0.96);
         }
         
+        body.dark .btn-secondary {
+            background: #1e2937;
+            border-color: #334155;
+            color: #38bdf8;
+        }
+        
         .modal {
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(8px);
-        }
-        
-        .confirm-modal {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
         }
         
         .rating-btn {
@@ -153,49 +223,108 @@
             height: 24px;
         }
         
-        .card-front, .card-back {
+        /* Flashcard styling - čisté */
+        .flashcard-container {
+            min-height: 350px;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 350px;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            min-height: 350px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
             border-radius: 1.5rem;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
         
-        .card-front {
+        .flashcard-front {
             background: white;
             border: 1px solid #e2e8f0;
         }
         
-        .card-back {
+        .flashcard-back {
             background: linear-gradient(135deg, #f0f9ff 0%, #faf5ff 100%);
             border: 1px solid #bae6fd;
+            transform: rotateY(180deg);
+        }
+        
+        body.dark .flashcard-front {
+            background: #1e2937;
+            border-color: #334155;
+        }
+        
+        body.dark .flashcard-back {
+            background: linear-gradient(135deg, #1e2937 0%, #312e81 100%);
+            border-color: #4f46e5;
+        }
+        
+        /* Status badges - jen ikona + text */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-badge i {
+            width: 12px;
+            height: 12px;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 pb-24">
+<body class="bg-slate-50 text-slate-800 min-h-screen p-4">
 
     <div class="max-w-md mx-auto">
         
-        <!-- Header - MindBloom styl -->
-        <div class="flex items-center justify-between mb-6 animate-slide-up">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 gradient-bg rounded-2xl flex items-center justify-center shadow-lg animate-float">
-                    <i data-feather="layers" class="w-6 h-6 text-white"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800">PsyLab</h1>
-                    <p class="text-sm text-slate-500">Flashcards • <span id="statsText">0/0</span></p>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="openCategoryModal()" class="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
-                    <i data-feather="tag" class="w-5 h-5 text-purple-500"></i>
-                </button>
-                <button onclick="openCardModal()" class="w-12 h-12 gradient-bg rounded-2xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all">
-                    <i data-feather="plus" class="w-5 h-5 text-white"></i>
-                </button>
-            </div>
+        <!-- Header - s ikonou mozku -->
+        <!-- Header - čistý, zarovnaný vlevo -->
+	<header class="flex items-center justify-between mb-4 animate-slide-up">
+    	<div>
+        	<h1 class="text-2xl font-bold">PsyLab</h1>
+        	<p class="text-sm text-slate-500">Flashcards • <span id="statsText">0/0</span></p>
+    	</div>
+    	<div class="flex gap-2">
+        	<button onclick="toggleDarkMode()" id="darkModeToggle" class="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
+            	<i data-feather="moon" class="w-5 h-5 text-slate-600"></i>
+        	</button>
+        	<button onclick="openCategoryModal()" class="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
+            	<i data-feather="tag" class="w-5 h-5 text-purple-500"></i>
+        	</button>
+        	<button onclick="openCardModal()" class="w-10 h-10 gradient-bg rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all">
+            	<i data-feather="plus" class="w-5 h-5 text-white"></i>
+        	</button>
+    	</div>
+	</header>
+
+        <!-- Install button -->
+        <div id="installContainer" class="mb-4 hidden">
+            <button onclick="installApp()" class="w-full bg-green-500 text-white p-3 rounded-xl shadow-md flex items-center justify-center gap-2 hover:bg-green-600 active:scale-95 transition-all">
+                <i data-feather="download" class="w-4 h-4"></i>
+                <span>Nainstalovat aplikaci do telefonu</span>
+            </button>
         </div>
 
         <!-- Tabs -->
-        <div class="glass-effect rounded-2xl p-1 mb-6 animate-slide-up" style="animation-delay: 0.1s">
+        <div class="glass-effect rounded-2xl p-1 mb-4 animate-slide-up" style="animation-delay: 0.1s">
             <div class="flex gap-1">
                 <button onclick="switchTab('learn')" id="tabLearn" class="tab flex-1 active">
                     <i data-feather="book-open" class="w-4 h-4 inline mr-2"></i>
@@ -208,8 +337,8 @@
             </div>
         </div>
 
-        <!-- Progress Section (Learn tab) -->
-        <div id="progressSection" class="gradient-bg rounded-2xl p-5 text-white shadow-xl mb-6 animate-slide-up" style="animation-delay: 0.15s">
+        <!-- Progress Section -->
+        <div id="progressSection" class="gradient-bg rounded-2xl p-5 text-white shadow-xl mb-4 animate-slide-up" style="animation-delay: 0.15s">
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <p class="text-white/80 text-sm">Denní pokrok</p>
@@ -231,12 +360,12 @@
         <!-- LEARN TAB -->
         <div id="learnTab">
             <!-- Empty state -->
-            <div id="emptyState" class="text-center py-12 bg-white rounded-3xl shadow-sm border border-slate-100 animate-slide-up hidden">
+            <div id="emptyState" class="text-center py-12 bg-white rounded-3xl shadow-sm border border-slate-100 hidden">
                 <div class="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
                     <i data-feather="book" class="w-12 h-12 text-slate-400"></i>
                 </div>
                 <h2 class="text-xl font-semibold text-slate-700 mb-2">Žádné kartičky</h2>
-                <p class="text-slate-500 mb-6">Přidejte svou první kartičku a začněte se učit</p>
+                <p class="text-slate-500 mb-6">Přidejte svou první kartičku</p>
                 <button onclick="openCardModal()" class="btn-primary inline-flex items-center gap-2">
                     <i data-feather="plus" class="w-4 h-4"></i>
                     Přidat kartičku
@@ -245,41 +374,41 @@
 
             <!-- Flashcard area -->
             <div id="kartaArea" class="hidden">
-                <!-- Card metadata -->
-                <div class="flex items-center justify-between mb-4">
+                <!-- Card metadata - čisté, jen ikony a text -->
+                <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                         <span class="category-tag" id="kartaKategorie">
                             <i data-feather="folder" class="w-3 h-3"></i>
-                            <span>Obecná psychologie</span>
+                            <span>Obecná</span>
                         </span>
-                        <span class="text-sm bg-orange-100 text-orange-600 px-3 py-1 rounded-full flex items-center gap-1" id="kartaStatus">
+                        <span class="status-badge bg-orange-100 text-orange-600" id="kartaStatus">
                             <i data-feather="clock" class="w-3 h-3"></i>
-                            Nová
+                            <span>Nová</span>
                         </span>
                     </div>
                     <span class="text-sm text-slate-500" id="pocitadlo">1/5</span>
                 </div>
 
-                <!-- Flashcard 3D -->
-                <div class="perspective mb-6" onclick="otocKartu()">
-                    <div id="flashcard" class="relative w-full preserve-3d card-transition" style="min-height: 320px;">
-                        <!-- Front -->
-                        <div class="absolute w-full h-full backface-hidden card-front p-6 flex flex-col">
-                            <div class="flex-1 flex items-center justify-center">
-                                <p class="text-xl font-medium text-slate-800 text-center leading-relaxed" id="otazkaText"></p>
+                <!-- Flashcard - čistý, bez "otázka/odpověď" textů -->
+                <div class="perspective mb-4 flashcard-container" onclick="otocKartu()">
+                    <div id="flashcard" class="flashcard">
+                        <!-- Přední strana -->
+                        <div class="flashcard-front">
+                            <div class="flex-1 flex items-center justify-center text-center">
+                                <p class="text-xl font-medium text-slate-800 leading-relaxed" id="otazkaText"></p>
                             </div>
-                            <div class="text-center text-slate-400 text-sm flex items-center justify-center gap-1">
+                            <div class="text-center text-slate-400 text-sm mt-2 flex items-center justify-center gap-1">
                                 <i data-feather="mouse-pointer" class="w-3 h-3"></i>
                                 Klepněte pro otočení
                             </div>
                         </div>
                         
-                        <!-- Back -->
-                        <div class="absolute w-full h-full backface-hidden rotate-y-180 card-back p-6 flex flex-col">
-                            <div class="flex-1 flex items-center justify-center overflow-y-auto">
-                                <p class="text-lg text-slate-700 text-center leading-relaxed" id="odpovedText"></p>
+                        <!-- Zadní strana -->
+                        <div class="flashcard-back">
+                            <div class="flex-1 flex items-center justify-center text-center overflow-y-auto">
+                                <p class="text-lg text-slate-700 leading-relaxed" id="odpovedText"></p>
                             </div>
-                            <div class="text-center text-primary-400 text-sm flex items-center justify-center gap-1">
+                            <div class="text-center text-primary-400 text-sm mt-2 flex items-center justify-center gap-1">
                                 <i data-feather="mouse-pointer" class="w-3 h-3"></i>
                                 Zpět na otázku
                             </div>
@@ -287,8 +416,8 @@
                     </div>
                 </div>
 
-                <!-- Rating buttons - MindBloom styl -->
-                <div class="grid grid-cols-2 gap-3">
+                <!-- Rating buttons -->
+                <div class="grid grid-cols-2 gap-2">
                     <button onclick="hodnotit(1)" class="rating-btn" style="background: #dcfce7; color: #166534; border-color: #bbf7d0;">
                         <i data-feather="thumbs-up" class="text-emerald-600"></i>
                         <span>Ano</span>
@@ -311,17 +440,28 @@
 
         <!-- MANAGE TAB -->
         <div id="manageTab" class="hidden">
+            <!-- Export/Import -->
+            <div class="flex gap-2 mb-4">
+                <button onclick="exportData()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                    <i data-feather="download" class="w-4 h-4 text-green-500"></i>
+                    <span class="text-sm font-medium">Export</span>
+                </button>
+                <button onclick="document.getElementById('importFile').click()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                    <i data-feather="upload" class="w-4 h-4 text-blue-500"></i>
+                    <span class="text-sm font-medium">Import</span>
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+            </div>
+
             <!-- Filter -->
-            <div class="mb-4 animate-slide-up">
+            <div class="mb-4">
                 <select id="categoryFilter" onchange="filterCards()" class="w-full p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
                     <option value="all">Všechny kategorie</option>
                 </select>
             </div>
 
             <!-- Cards list -->
-            <div id="cardsList" class="space-y-3">
-                <!-- Dynamically populated -->
-            </div>
+            <div id="cardsList" class="space-y-3"></div>
         </div>
     </div>
 
@@ -329,11 +469,8 @@
     <div id="cardModal" class="fixed inset-0 modal hidden items-end justify-center p-4 z-50" style="display: none;">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl animate-slide-up">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-slate-800" id="cardModalTitle">
-                    <i data-feather="edit-3" class="w-5 h-5 inline mr-2 text-primary-500"></i>
-                    Nová kartička
-                </h3>
-                <button onclick="closeCardModal()" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors">
+                <h3 class="text-xl font-bold text-slate-800" id="cardModalTitle">Nová kartička</h3>
+                <button onclick="closeCardModal()" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200">
                     <i data-feather="x" class="w-5 h-5 text-slate-500"></i>
                 </button>
             </div>
@@ -342,22 +479,19 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Otázka</label>
-                    <input type="text" id="cardQuestion" placeholder="Např. Kdo byl Sigmund Freud?" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <input type="text" id="cardQuestion" placeholder="Např. Kdo byl Freud?" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200">
                 </div>
-                
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Odpověď</label>
-                    <textarea id="cardAnswer" placeholder="Např. Zakladatel psychoanalýzy" rows="3" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent"></textarea>
+                    <textarea id="cardAnswer" placeholder="Např. Zakladatel psychoanalýzy" rows="3" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200"></textarea>
                 </div>
-                
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Kategorie</label>
-                    <select id="cardCategory" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500"></select>
+                    <select id="cardCategory" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200"></select>
                 </div>
-                
                 <button onclick="saveCard()" class="btn-primary w-full py-4 mt-4">
                     <i data-feather="check" class="w-4 h-4 inline mr-2"></i>
-                    Uložit kartičku
+                    Uložit
                 </button>
             </div>
         </div>
@@ -367,79 +501,125 @@
     <div id="categoryModal" class="fixed inset-0 modal hidden items-end justify-center p-4 z-50" style="display: none;">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl animate-slide-up">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-slate-800">
-                    <i data-feather="tag" class="w-5 h-5 inline mr-2 text-purple-500"></i>
-                    Správa kategorií
-                </h3>
+                <h3 class="text-xl font-bold text-slate-800">Správa kategorií</h3>
                 <button onclick="closeCategoryModal()" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200">
                     <i data-feather="x" class="w-5 h-5 text-slate-500"></i>
                 </button>
             </div>
             
             <div class="space-y-4">
-                <!-- Add category -->
                 <div class="flex gap-2">
                     <input type="text" id="newCategoryName" placeholder="Nová kategorie" class="flex-1 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <button onclick="addCategory()" class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center shadow-md hover:shadow-lg active:scale-95 transition-all">
+                    <button onclick="addCategory()" class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center shadow-md">
                         <i data-feather="plus" class="w-5 h-5 text-white"></i>
                     </button>
                 </div>
-                
-                <!-- Categories list -->
-                <div id="categoriesList" class="space-y-2 max-h-96 overflow-y-auto">
-                    <!-- Dynamically populated -->
-                </div>
+                <div id="categoriesList" class="space-y-2 max-h-96 overflow-y-auto"></div>
             </div>
         </div>
     </div>
 
-    <!-- CONFIRM MODAL pro mazání kategorie s obsahem -->
-    <div id="confirmModal" class="fixed inset-0 confirm-modal hidden items-center justify-center p-4 z-[60]" style="display: none;">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl animate-slide-up">
+    <!-- CONFIRM MODAL -->
+    <div id="confirmModal" class="fixed inset-0 modal hidden items-center justify-center p-4 z-[60]" style="display: none;">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl">
             <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i data-feather="alert-triangle" class="w-8 h-8 text-red-500"></i>
             </div>
-            
-            <h3 class="text-xl font-bold text-slate-800 text-center mb-2">Smazat kategorii?</h3>
-            <p class="text-slate-600 text-center mb-6" id="confirmMessage">Tato kategorie obsahuje X kartiček. Budou také smazány.</p>
-            
+            <h3 class="text-xl font-bold text-center mb-2">Smazat kategorii?</h3>
+            <p class="text-slate-600 text-center mb-6" id="confirmMessage"></p>
             <div class="flex gap-3">
                 <button onclick="closeConfirmModal()" class="btn-secondary flex-1">Zpět</button>
-                <button onclick="executeDeleteCategory()" class="flex-1 bg-red-500 text-white py-4 rounded-xl font-medium hover:bg-red-600 active:scale-95 transition-all">
-                    Ano, smazat vše
+                <button onclick="executeDeleteCategory()" class="flex-1 bg-red-500 text-white py-4 rounded-xl font-medium hover:bg-red-600">
+                    Ano, smazat
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Inicializace feather icons
+        // Inicializace
         feather.replace();
 
         // Data
-        const DEFAULT_CATEGORIES = ['Obecná psychologie', 'Vývojová psychologie', 'Klinická psychologie', 'Sociální psychologie'];
-        
+        const DEFAULT_CATEGORIES = ['Obecná', 'Vývojová', 'Klinická', 'Sociální'];
         let karticky = JSON.parse(localStorage.getItem('karticky')) || [];
         let kategorie = JSON.parse(localStorage.getItem('kategorie')) || DEFAULT_CATEGORIES;
-
+        
         let aktualniKarta = null;
         let otoceno = false;
         let kUCeni = [];
         let kategorieKeSmazani = null;
 
-        // Inicializace
-        function init() {
-            if (karticky.length === 0) {
-                karticky = [
-                    { id: 1, otazka: "Kdo byl Sigmund Freud?", odpoved: "Zakladatel psychoanalýzy", kategorie: "Obecná psychologie", vaha: 0, hodnoceni: [] },
-                    { id: 2, otazka: "Co je to behaviorismus?", odpoved: "Psychologický směr zaměřený na pozorovatelné chování", kategorie: "Obecná psychologie", vaha: 0, hodnoceni: [] },
-                    { id: 3, otazka: "Kdo provedl experiment s malým Albertem?", odpoved: "John B. Watson", kategorie: "Obecná psychologie", vaha: 0, hodnoceni: [] }
-                ];
+        // Dark mode
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) document.body.classList.add('dark');
+
+        window.toggleDarkMode = function() {
+            darkMode = !darkMode;
+            document.body.classList.toggle('dark');
+            localStorage.setItem('darkMode', darkMode);
+            document.querySelector('#darkModeToggle i').setAttribute('data-feather', darkMode ? 'sun' : 'moon');
+            feather.replace();
+        };
+
+        // Instalace aplikace
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installContainer').classList.remove('hidden');
+        });
+
+        window.installApp = function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                    document.getElementById('installContainer').classList.add('hidden');
+                });
             }
-            ulozData();
-            aktualizujUI();
-            renderCategoriesList();
-            renderCardsList();
+        };
+
+        // Export/Import
+        window.exportData = function() {
+            const data = { karticky, kategorie, exportDate: new Date().toISOString() };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `psylab-${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            showToast('Data exportována');
+        };
+
+        window.importData = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.karticky && imported.kategorie) {
+                        karticky = imported.karticky;
+                        kategorie = imported.kategorie;
+                        ulozData();
+                        showToast('Data importována');
+                    }
+                } catch (error) {
+                    alert('Neplatný soubor');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-xl z-50 flex items-center gap-2 animate-slide-up';
+            toast.innerHTML = `<i data-feather="check-circle" class="w-5 h-5 text-green-400"></i><span>${msg}</span>`;
+            document.body.appendChild(toast);
+            feather.replace();
+            setTimeout(() => toast.remove(), 2000);
         }
 
         function ulozData() {
@@ -451,20 +631,14 @@
 
         function aktualizujSelecty() {
             const select = document.getElementById('cardCategory');
-            if (select) {
-                select.innerHTML = kategorie.map(k => `<option value="${k}">${k}</option>`).join('');
-            }
+            if (select) select.innerHTML = kategorie.map(k => `<option value="${k}">${k}</option>`).join('');
             
             const filter = document.getElementById('categoryFilter');
-            if (filter) {
-                filter.innerHTML = '<option value="all">Všechny kategorie</option>' + 
-                    kategorie.map(k => `<option value="${k}">${k}</option>`).join('');
-            }
+            if (filter) filter.innerHTML = '<option value="all">Všechny</option>' + kategorie.map(k => `<option value="${k}">${k}</option>`).join('');
         }
 
         function aktualizujUI() {
             kUCeni = karticky.filter(k => k.vaha < 3);
-            
             const celkem = karticky.length;
             const nauceno = karticky.filter(k => k.vaha >= 3).length;
             
@@ -472,9 +646,7 @@
             document.getElementById('kUceni').innerText = kUCeni.length;
             document.getElementById('naucedo').innerText = nauceno;
             document.getElementById('celkemKaret').innerText = celkem;
-            
-            const procenta = celkem > 0 ? (nauceno / celkem) * 100 : 0;
-            document.getElementById('progressBar').style.width = procenta + '%';
+            document.getElementById('progressBar').style.width = celkem > 0 ? (nauceno / celkem) * 100 + '%' : '0%';
             
             if (celkem === 0) {
                 document.getElementById('emptyState').classList.remove('hidden');
@@ -482,17 +654,13 @@
             } else {
                 document.getElementById('emptyState').classList.add('hidden');
                 document.getElementById('kartaArea').classList.remove('hidden');
-                if (kUCeni.length > 0) {
-                    vyberNahodnouKartu();
-                } else {
-                    document.getElementById('otazkaText').innerText = "Všechny kartičky jsou naučené! 🎉";
-                    document.getElementById('odpovedText').innerText = "Gratulujeme! Dnes máte hotovo.";
-                    document.getElementById('kartaStatus').innerHTML = '<i data-feather="check-circle" class="w-3 h-3"></i> Hotovo';
-                    document.getElementById('kartaKategorie').innerHTML = '<i data-feather="star" class="w-3 h-3"></i> <span>Výborně</span>';
-                    feather.replace();
+                if (kUCeni.length > 0) vyberNahodnouKartu();
+                else {
+                    document.getElementById('otazkaText').innerText = "Všechny naučené! 🎉";
+                    document.getElementById('odpovedText').innerText = "Gratulujeme!";
+                    document.getElementById('kartaStatus').innerHTML = '<i data-feather="check-circle"></i> Hotovo';
                 }
             }
-            
             renderCardsList();
         }
 
@@ -500,9 +668,8 @@
             if (kUCeni.length === 0) return;
             
             const vahy = kUCeni.map(k => 3 - k.vaha);
-            const soucetVah = vahy.reduce((a, b) => a + b, 0);
-            
-            let nahodne = Math.random() * soucetVah;
+            const soucet = vahy.reduce((a, b) => a + b, 0);
+            let nahodne = Math.random() * soucet;
             let vybrana = kUCeni[0];
             
             for (let i = 0; i < kUCeni.length; i++) {
@@ -516,71 +683,49 @@
             aktualniKarta = vybrana;
             otoceno = false;
             
+            document.getElementById('flashcard').classList.remove('rotate-y-180');
             document.getElementById('otazkaText').innerText = vybrana.otazka;
             document.getElementById('odpovedText').innerText = vybrana.odpoved;
-            document.getElementById('odpovedText').classList.add('hidden');
-            document.getElementById('otazkaText').classList.remove('hidden');
-            document.getElementById('kartaKategorie').innerHTML = `<i data-feather="folder" class="w-3 h-3"></i> <span>${vybrana.kategorie}</span>`;
+            document.getElementById('kartaKategorie').innerHTML = `<i data-feather="folder"></i> ${vybrana.kategorie}`;
             
             const index = kUCeni.findIndex(k => k.id === vybrana.id) + 1;
-            document.getElementById('pocitadlo').innerText = `${index} / ${kUCeni.length}`;
+            document.getElementById('pocitadlo').innerText = `${index}/${kUCeni.length}`;
             
-            let statusText = '', statusIcon = '';
-            if (vybrana.vaha === 0) { statusText = 'Nová'; statusIcon = 'clock'; }
-            else if (vybrana.vaha === 1) { statusText = 'Opakování'; statusIcon = 'refresh-cw'; }
-            else if (vybrana.vaha === 2) { statusText = 'Téměř naučeno'; statusIcon = 'alert-circle'; }
+            // Status badges - jen ikona a text, bez emoji
+            let statusIcon = 'clock';
+            let statusText = 'Nová';
+            if (vybrana.vaha === 1) { statusIcon = 'refresh-cw'; statusText = 'Opakování'; }
+            else if (vybrana.vaha === 2) { statusIcon = 'alert-circle'; statusText = 'Téměř'; }
             
-            document.getElementById('kartaStatus').innerHTML = `<i data-feather="${statusIcon}" class="w-3 h-3"></i> ${statusText}`;
+            document.getElementById('kartaStatus').innerHTML = `<i data-feather="${statusIcon}"></i> ${statusText}`;
             
             feather.replace();
         }
 
         window.otocKartu = function() {
             if (!aktualniKarta) return;
-            
-            const flashcard = document.getElementById('flashcard');
-            flashcard.classList.toggle('rotate-y-180');
+            document.getElementById('flashcard').classList.toggle('rotate-y-180');
             otoceno = !otoceno;
         };
 
-        window.hodnotit = function(hodnoceni) {
+        window.hodnotit = function(h) {
             if (!aktualniKarta) return;
             
-            let zmena = 0;
-            switch(hodnoceni) {
-                case 1: zmena = 1; break;
-                case 2: zmena = 0.5; break;
-                case 3: zmena = -0.5; break;
-                case 4: zmena = -1; break;
-            }
-            
+            let zmena = h === 1 ? 1 : h === 2 ? 0.5 : h === 3 ? -0.5 : -1;
             aktualniKarta.vaha = Math.max(0, Math.min(4, aktualniKarta.vaha + zmena));
-            aktualniKarta.hodnoceni.push({
-                hodnoceni: hodnoceni,
-                cas: new Date().toISOString()
-            });
+            aktualniKarta.hodnoceni.push({ h, cas: new Date().toISOString() });
             
             ulozData();
             vyberNahodnouKartu();
+            showToast(h === 1 ? 'Výborně!' : h === 2 ? 'Dobře' : h === 3 ? 'Ještě zkusíme' : 'Zopakujeme');
         };
 
-        // Správa karet
-        window.openCardModal = function(karta = null) {
-            document.getElementById('cardModalTitle').innerHTML = `<i data-feather="${karta ? 'edit-3' : 'plus'}" class="w-5 h-5 inline mr-2 text-primary-500"></i> ${karta ? 'Upravit kartu' : 'Nová kartička'}`;
-            
-            if (karta) {
-                document.getElementById('editCardId').value = karta.id;
-                document.getElementById('cardQuestion').value = karta.otazka;
-                document.getElementById('cardAnswer').value = karta.odpoved;
-                document.getElementById('cardCategory').value = karta.kategorie;
-            } else {
-                document.getElementById('editCardId').value = '';
-                document.getElementById('cardQuestion').value = '';
-                document.getElementById('cardAnswer').value = '';
-                document.getElementById('cardCategory').value = kategorie[0] || '';
-            }
-            
-            feather.replace();
+        window.openCardModal = function(k = null) {
+            document.getElementById('cardModalTitle').innerText = k ? 'Upravit' : 'Nová';
+            document.getElementById('editCardId').value = k?.id || '';
+            document.getElementById('cardQuestion').value = k?.otazka || '';
+            document.getElementById('cardAnswer').value = k?.odpoved || '';
+            document.getElementById('cardCategory').value = k?.kategorie || kategorie[0];
             document.getElementById('cardModal').style.display = 'flex';
         };
 
@@ -590,32 +735,17 @@
 
         window.saveCard = function() {
             const id = document.getElementById('editCardId').value;
-            const otazka = document.getElementById('cardQuestion').value;
-            const odpoved = document.getElementById('cardAnswer').value;
-            const kategorieValue = document.getElementById('cardCategory').value;
+            const q = document.getElementById('cardQuestion').value;
+            const a = document.getElementById('cardAnswer').value;
+            const cat = document.getElementById('cardCategory').value;
             
-            if (!otazka || !odpoved) {
-                alert('Vyplňte otázku a odpověď');
-                return;
-            }
+            if (!q || !a) return alert('Vyplňte vše');
             
             if (id) {
-                const karta = karticky.find(k => k.id == id);
-                if (karta) {
-                    karta.otazka = otazka;
-                    karta.odpoved = odpoved;
-                    karta.kategorie = kategorieValue;
-                }
+                const k = karticky.find(k => k.id == id);
+                if (k) { k.otazka = q; k.odpoved = a; k.kategorie = cat; }
             } else {
-                const nova = {
-                    id: Date.now(),
-                    otazka: otazka,
-                    odpoved: odpoved,
-                    kategorie: kategorieValue,
-                    vaha: 0,
-                    hodnoceni: []
-                };
-                karticky.push(nova);
+                karticky.push({ id: Date.now(), otazka: q, odpoved: a, kategorie: cat, vaha: 0, hodnoceni: [] });
             }
             
             ulozData();
@@ -623,104 +753,66 @@
         };
 
         window.deleteCard = function(id) {
-            if (confirm('Opravdu chcete smazat tuto kartičku?')) {
+            if (confirm('Smazat?')) {
                 karticky = karticky.filter(k => k.id != id);
                 ulozData();
             }
         };
 
         function renderCardsList() {
-            const filter = document.getElementById('categoryFilter')?.value || 'all';
-            const container = document.getElementById('cardsList');
+            const f = document.getElementById('categoryFilter')?.value || 'all';
+            const filtered = f === 'all' ? karticky : karticky.filter(k => k.kategorie === f);
             
-            let filtered = karticky;
-            if (filter !== 'all') {
-                filtered = karticky.filter(k => k.kategorie === filter);
-            }
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="text-center py-12 bg-white rounded-2xl"><p class="text-slate-500">Žádné kartičky</p></div>';
-                return;
-            }
-            
-            container.innerHTML = filtered.map(karta => `
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all">
-                    <div class="flex items-start justify-between mb-3">
-                        <span class="category-tag">
-                            <i data-feather="folder" class="w-3 h-3"></i>
-                            ${karta.kategorie}
-                        </span>
+            document.getElementById('cardsList').innerHTML = filtered.length ? filtered.map(k => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="category-tag"><i data-feather="folder"></i> ${k.kategorie}</span>
                         <div class="flex gap-1">
-                            <button onclick='openCardModal(${JSON.stringify(karta).replace(/'/g, "\\'")})' class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center hover:bg-blue-100">
-                                <i data-feather="edit-2" class="w-4 h-4 text-blue-500"></i>
-                            </button>
-                            <button onclick="deleteCard(${karta.id})" class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center hover:bg-red-100">
-                                <i data-feather="trash-2" class="w-4 h-4 text-red-500"></i>
-                            </button>
+                            <button onclick='openCardModal(${JSON.stringify(k).replace(/'/g, "\\'")})' class="p-2 bg-blue-50 rounded-lg"><i data-feather="edit-2" class="w-4 h-4 text-blue-500"></i></button>
+                            <button onclick="deleteCard(${k.id})" class="p-2 bg-red-50 rounded-lg"><i data-feather="trash-2" class="w-4 h-4 text-red-500"></i></button>
                         </div>
                     </div>
-                    <p class="font-medium text-slate-800 mb-2">❓ ${karta.otazka}</p>
-                    <p class="text-sm text-slate-600 mb-3">💡 ${karta.odpoved}</p>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-slate-400">Váha: ${karta.vaha}</span>
-                        <span class="text-slate-400">Hodnocení: ${karta.hodnoceni.length}x</span>
-                    </div>
+                    <p class="font-medium mb-1">❓ ${k.otazka}</p>
+                    <p class="text-sm text-slate-600">💡 ${k.odpoved}</p>
                 </div>
-            `).join('');
-            
+            `).join('') : '<div class="text-center py-8 text-slate-500">Žádné kartičky</div>';
             feather.replace();
         }
 
-        window.filterCards = function() {
-            renderCardsList();
-        };
+        window.filterCards = renderCardsList;
 
-        // Správa kategorií s dvojitým potvrzením
+        // Kategorie
         window.openCategoryModal = function() {
             renderCategoriesList();
             document.getElementById('categoryModal').style.display = 'flex';
-            feather.replace();
         };
 
         window.closeCategoryModal = function() {
             document.getElementById('categoryModal').style.display = 'none';
-            kategorieKeSmazani = null;
         };
 
         window.addCategory = function() {
-            const nazev = document.getElementById('newCategoryName').value.trim();
-            if (!nazev) {
-                alert('Zadejte název kategorie');
-                return;
-            }
-            if (kategorie.includes(nazev)) {
-                alert('Tato kategorie již existuje');
-                return;
-            }
-            kategorie.push(nazev);
+            const n = document.getElementById('newCategoryName').value.trim();
+            if (!n) return alert('Zadejte název');
+            if (kategorie.includes(n)) return alert('Existuje');
+            kategorie.push(n);
             ulozData();
             renderCategoriesList();
             document.getElementById('newCategoryName').value = '';
         };
 
-        // Funkce pro mazání kategorie s potvrzením
         window.confirmDeleteCategory = function(nazev) {
-            const pocetKaret = karticky.filter(k => k.kategorie === nazev).length;
-            
-            if (pocetKaret === 0) {
-                // Kategorie je prázdná, můžeme smazat rovnou
-                if (confirm(`Opravdu chcete smazat kategorii "${nazev}"?`)) {
+            const pocet = karticky.filter(k => k.kategorie === nazev).length;
+            if (pocet === 0) {
+                if (confirm(`Smazat "${nazev}"?`)) {
                     kategorie = kategorie.filter(k => k !== nazev);
                     ulozData();
                     renderCategoriesList();
                 }
             } else {
-                // Kategorie obsahuje karty - zobrazíme potvrzovací modal
                 kategorieKeSmazani = nazev;
-                document.getElementById('confirmMessage').innerHTML = 
-                    `Kategorie <strong>"${nazev}"</strong> obsahuje <strong>${pocetKaret}</strong> kartiček. Budou také nenávratně smazány.`;
+                document.getElementById('confirmMessage').innerHTML = `Kategorie "${nazev}" obsahuje ${pocet} kartiček. Budou také smazány.`;
                 document.getElementById('confirmModal').style.display = 'flex';
-                feather.replace();
             }
         };
 
@@ -731,11 +823,8 @@
 
         window.executeDeleteCategory = function() {
             if (kategorieKeSmazani) {
-                // Smazat všechny kartičky v kategorii
                 karticky = karticky.filter(k => k.kategorie !== kategorieKeSmazani);
-                // Smazat kategorii
                 kategorie = kategorie.filter(k => k !== kategorieKeSmazani);
-                
                 ulozData();
                 closeConfirmModal();
                 closeCategoryModal();
@@ -744,26 +833,16 @@
         };
 
         function renderCategoriesList() {
-            const container = document.getElementById('categoriesList');
-            container.innerHTML = kategorie.map(k => {
-                const pocetKaret = karticky.filter(karta => karta.kategorie === k).length;
-                return `
-                    <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl">
-                        <div>
-                            <span class="font-medium text-slate-700">${k}</span>
-                            <span class="text-xs text-slate-500 ml-2">${pocetKaret} karet</span>
-                        </div>
-                        <button onclick="confirmDeleteCategory('${k}')" class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center hover:bg-red-100">
-                            <i data-feather="trash-2" class="w-4 h-4 text-red-500"></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
-            
+            document.getElementById('categoriesList').innerHTML = kategorie.map(k => `
+                <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl">
+                    <span>${k} (${karticky.filter(ka => ka.kategorie === k).length})</span>
+                    <button onclick="confirmDeleteCategory('${k}')" class="p-2 bg-red-50 rounded-lg"><i data-feather="trash-2" class="w-4 h-4 text-red-500"></i></button>
+                </div>
+            `).join('');
             feather.replace();
         }
 
-        // Přepínání tabů
+        // Tabs
         window.switchTab = function(tab) {
             if (tab === 'learn') {
                 document.getElementById('learnTab').classList.remove('hidden');
@@ -771,7 +850,6 @@
                 document.getElementById('progressSection').classList.remove('hidden');
                 document.getElementById('tabLearn').classList.add('active');
                 document.getElementById('tabManage').classList.remove('active');
-                aktualizujUI();
             } else {
                 document.getElementById('learnTab').classList.add('hidden');
                 document.getElementById('manageTab').classList.remove('hidden');
@@ -780,22 +858,26 @@
                 document.getElementById('tabManage').classList.add('active');
                 renderCardsList();
             }
-            feather.replace();
         };
 
         // Click outside modals
-        document.getElementById('cardModal').addEventListener('click', function(e) {
-            if (e.target === this) closeCardModal();
-        });
-        document.getElementById('categoryModal').addEventListener('click', function(e) {
-            if (e.target === this) closeCategoryModal();
-        });
-        document.getElementById('confirmModal').addEventListener('click', function(e) {
-            if (e.target === this) closeConfirmModal();
-        });
+        document.getElementById('cardModal').addEventListener('click', e => e.target === document.getElementById('cardModal') && closeCardModal());
+        document.getElementById('categoryModal').addEventListener('click', e => e.target === document.getElementById('categoryModal') && closeCategoryModal());
+        document.getElementById('confirmModal').addEventListener('click', e => e.target === document.getElementById('confirmModal') && closeConfirmModal());
 
         // Start
-        init();
+        (function init() {
+            if (karticky.length === 0) {
+                karticky = [
+                    { id: 1, otazka: "Kdo byl Sigmund Freud?", odpoved: "Zakladatel psychoanalýzy", kategorie: "Obecná", vaha: 0, hodnoceni: [] },
+                    { id: 2, otazka: "Co je behaviorismus?", odpoved: "Směr zaměřený na chování", kategorie: "Obecná", vaha: 0, hodnoceni: [] }
+                ];
+            }
+            ulozData();
+            aktualizujUI();
+            renderCategoriesList();
+            renderCardsList();
+        })();
     </script>
 </body>
 </html>
