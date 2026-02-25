@@ -76,10 +76,10 @@
             background: #1e2937 !important;
             border-color: #334155 !important;
         }
-	
-	body.dark .flashcard-back p {  /* Přesněji pro text v odpovědi */
-    		color: #5eead4 !important;  /* Změňte na požadovanou barvu */
-	}
+    
+        body.dark .flashcard-back p {
+            color: #5eead4 !important;
+        }
         
         body.dark .card-back {
             background: linear-gradient(135deg, #1e2937 0%, #312e81 100%) !important;
@@ -223,6 +223,31 @@
             height: 24px;
         }
         
+        .control-btn {
+            background: white;
+            border-radius: 1rem;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            flex: 1;
+        }
+        
+        .control-btn:active {
+            transform: scale(0.96);
+            background: #f8fafc;
+        }
+        
+        body.dark .control-btn {
+            background: #1e2937;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+        
         /* Flashcard styling - čisté */
         .flashcard-container {
             min-height: 350px;
@@ -274,7 +299,7 @@
             border-color: #4f46e5;
         }
         
-        /* Status badges - jen ikona + text */
+        /* Status badges */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -289,31 +314,38 @@
             width: 12px;
             height: 12px;
         }
+
+        /* Checkbox styling */
+        .card-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #0ea5e9;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen p-4">
 
     <div class="max-w-md mx-auto">
         
-        <!-- Header - s ikonou mozku -->
-        <!-- Header - čistý, zarovnaný vlevo -->
-	<header class="flex items-center justify-between mb-4 animate-slide-up">
-    	<div>
-        	<h1 class="text-2xl font-bold">PsyLab</h1>
-        	<p class="text-sm text-slate-500">Flashcards • <span id="statsText">0/0</span></p>
-    	</div>
-    	<div class="flex gap-2">
-        	<button onclick="toggleDarkMode()" id="darkModeToggle" class="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
-            	<i data-feather="moon" class="w-5 h-5 text-slate-600"></i>
-        	</button>
-        	<button onclick="openCategoryModal()" class="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
-            	<i data-feather="tag" class="w-5 h-5 text-purple-500"></i>
-        	</button>
-        	<button onclick="openCardModal()" class="w-10 h-10 gradient-bg rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all">
-            	<i data-feather="plus" class="w-5 h-5 text-white"></i>
-        	</button>
-    	</div>
-	</header>
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-4 animate-slide-up">
+            <div>
+                <h1 class="text-2xl font-bold">PsyLab</h1>
+                <p class="text-sm text-slate-500">Flashcards • <span id="statsText">0/0</span></p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleDarkMode()" id="darkModeToggle" class="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
+                    <i data-feather="moon" class="w-5 h-5 text-slate-600"></i>
+                </button>
+                <button onclick="openCategoryModal()" class="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
+                    <i data-feather="tag" class="w-5 h-5 text-purple-500"></i>
+                </button>
+                <button onclick="openCardModal()" class="w-10 h-10 gradient-bg rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all">
+                    <i data-feather="plus" class="w-5 h-5 text-white"></i>
+                </button>
+            </div>
+        </header>
 
         <!-- Install button -->
         <div id="installContainer" class="mb-4 hidden">
@@ -359,6 +391,29 @@
 
         <!-- LEARN TAB -->
         <div id="learnTab">
+            <!-- Ovládací prvky pro učení -->
+            <div class="flex gap-2 mb-4 animate-slide-up" style="animation-delay: 0.2s">
+                <button onclick="resetAllProgress()" class="control-btn">
+                    <i data-feather="refresh-cw" class="w-4 h-4 text-blue-500"></i>
+                    <span>Reset vše</span>
+                </button>
+                <button onclick="reshuffleCards()" class="control-btn">
+                    <i data-feather="shuffle" class="w-4 h-4 text-purple-500"></i>
+                    <span>Zamíchat</span>
+                </button>
+                <button onclick="showAllCards()" class="control-btn">
+                    <i data-feather="list" class="w-4 h-4 text-green-500"></i>
+                    <span>Všechny</span>
+                </button>
+            </div>
+
+            <!-- Výběr kategorie pro učení -->
+            <div class="mb-4 animate-slide-up" style="animation-delay: 0.25s">
+                <select id="learnCategoryFilter" onchange="filterLearnCards()" class="w-full p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <option value="all">Všechny kategorie</option>
+                </select>
+            </div>
+
             <!-- Empty state -->
             <div id="emptyState" class="text-center py-12 bg-white rounded-3xl shadow-sm border border-slate-100 hidden">
                 <div class="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
@@ -374,7 +429,7 @@
 
             <!-- Flashcard area -->
             <div id="kartaArea" class="hidden">
-                <!-- Card metadata - čisté, jen ikony a text -->
+                <!-- Card metadata -->
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                         <span class="category-tag" id="kartaKategorie">
@@ -389,7 +444,7 @@
                     <span class="text-sm text-slate-500" id="pocitadlo">1/5</span>
                 </div>
 
-                <!-- Flashcard - čistý, bez "otázka/odpověď" textů -->
+                <!-- Flashcard -->
                 <div class="perspective mb-4 flashcard-container" onclick="otocKartu()">
                     <div id="flashcard" class="flashcard">
                         <!-- Přední strana -->
@@ -453,11 +508,32 @@
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
             </div>
 
+            <!-- Hromadné akce -->
+            <div class="flex gap-2 mb-4">
+                <button onclick="resetSelectedCards()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                    <i data-feather="refresh-ccw" class="w-4 h-4 text-orange-500"></i>
+                    <span class="text-sm font-medium">Reset vybraných</span>
+                </button>
+                <button onclick="deleteSelectedCards()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                    <i data-feather="trash-2" class="w-4 h-4 text-red-500"></i>
+                    <span class="text-sm font-medium">Smazat vybrané</span>
+                </button>
+            </div>
+
             <!-- Filter -->
             <div class="mb-4">
                 <select id="categoryFilter" onchange="filterCards()" class="w-full p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
                     <option value="all">Všechny kategorie</option>
                 </select>
+            </div>
+
+            <!-- Select All -->
+            <div class="flex items-center justify-between mb-3 bg-white p-3 rounded-xl shadow-sm">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" class="card-checkbox">
+                    <label for="selectAllCheckbox" class="text-sm font-medium">Vybrat vše</label>
+                </div>
+                <span class="text-sm text-slate-500" id="selectedCount">0 vybráno</span>
             </div>
 
             <!-- Cards list -->
@@ -525,11 +601,11 @@
             <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i data-feather="alert-triangle" class="w-8 h-8 text-red-500"></i>
             </div>
-            <h3 class="text-xl font-bold text-center mb-2">Smazat kategorii?</h3>
+            <h3 class="text-xl font-bold text-center mb-2" id="confirmTitle">Potvrďte akci</h3>
             <p class="text-slate-600 text-center mb-6" id="confirmMessage"></p>
             <div class="flex gap-3">
                 <button onclick="closeConfirmModal()" class="btn-secondary flex-1">Zpět</button>
-                <button onclick="executeDeleteCategory()" class="flex-1 bg-red-500 text-white py-4 rounded-xl font-medium hover:bg-red-600">
+                <button onclick="executeConfirmedAction()" id="confirmActionBtn" class="flex-1 bg-red-500 text-white py-4 rounded-xl font-medium hover:bg-red-600">
                     Ano, smazat
                 </button>
             </div>
@@ -549,6 +625,9 @@
         let otoceno = false;
         let kUCeni = [];
         let kategorieKeSmazani = null;
+        let selectedCards = new Set();
+        let confirmAction = null;
+        let learnCategoryFilter = 'all';
 
         // Dark mode
         let darkMode = localStorage.getItem('darkMode') === 'true';
@@ -601,16 +680,91 @@
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (imported.karticky && imported.kategorie) {
-                        karticky = imported.karticky;
+                        // Při importu resetujeme váhu a hodnocení pro nový začátek
+                        karticky = imported.karticky.map(k => ({
+                            ...k,
+                            id: Date.now() + Math.random(), // Nová ID pro zabránění konfliktů
+                            vaha: 0,
+                            hodnoceni: []
+                        }));
                         kategorie = imported.kategorie;
                         ulozData();
-                        showToast('Data importována');
+                        showToast('Data importována - vše resetováno na začátek');
+                        selectedCards.clear();
                     }
                 } catch (error) {
                     alert('Neplatný soubor');
                 }
             };
             reader.readAsText(file);
+        };
+
+        // Nové funkce pro ovládání učení
+        window.resetAllProgress = function() {
+            showConfirm(
+                'Resetovat vše?',
+                'Všem kartičkám bude nastavena váha 0 (jako nové).',
+                () => {
+                    karticky.forEach(k => {
+                        k.vaha = 0;
+                        k.hodnoceni = [];
+                    });
+                    ulozData();
+                    vyberNahodnouKartu();
+                    showToast('Všechny kartičky resetovány');
+                }
+            );
+        };
+
+        window.reshuffle = function() {
+            kUCeni = getFilteredLearnCards();
+            vyberNahodnouKartu();
+            showToast('Seznam zamíchán');
+        };
+
+        window.showAllCards = function() {
+            // Dočasně zobrazíme všechny kartičky bez ohledu na váhu
+            const vsechny = karticky.filter(k => {
+                if (learnCategoryFilter === 'all') return true;
+                return k.kategorie === learnCategoryFilter;
+            });
+            
+            if (vsechny.length === 0) return;
+            
+            // Náhodný výběr z všech karet
+            const nahodnyIndex = Math.floor(Math.random() * vsechny.length);
+            aktualniKarta = vsechny[nahodnyIndex];
+            otoceno = false;
+            
+            document.getElementById('flashcard').classList.remove('rotate-y-180');
+            document.getElementById('otazkaText').innerText = aktualniKarta.otazka;
+            document.getElementById('odpovedText').innerText = aktualniKarta.odpoved;
+            document.getElementById('kartaKategorie').innerHTML = `<i data-feather="folder"></i> ${aktualniKarta.kategorie}`;
+            
+            const index = vsechny.findIndex(k => k.id === aktualniKarta.id) + 1;
+            document.getElementById('pocitadlo').innerText = `${index}/${vsechny.length}`;
+            
+            updateCardStatus(aktualniKarta);
+            feather.replace();
+        };
+
+        function getFilteredLearnCards() {
+            return karticky.filter(k => {
+                if (learnCategoryFilter !== 'all' && k.kategorie !== learnCategoryFilter) return false;
+                return k.vaha < 3; // Standardně jen k učení
+            });
+        }
+
+        window.filterLearnCards = function() {
+            learnCategoryFilter = document.getElementById('learnCategoryFilter').value;
+            kUCeni = getFilteredLearnCards();
+            
+            if (kUCeni.length > 0) {
+                vyberNahodnouKartu();
+            } else {
+                // Pokud není nic k učení, zkusíme zobrazit vše
+                showAllCards();
+            }
         };
 
         function showToast(msg) {
@@ -635,10 +789,17 @@
             
             const filter = document.getElementById('categoryFilter');
             if (filter) filter.innerHTML = '<option value="all">Všechny</option>' + kategorie.map(k => `<option value="${k}">${k}</option>`).join('');
+            
+            const learnFilter = document.getElementById('learnCategoryFilter');
+            if (learnFilter) {
+                const currentValue = learnFilter.value;
+                learnFilter.innerHTML = '<option value="all">Všechny kategorie</option>' + kategorie.map(k => `<option value="${k}">${k}</option>`).join('');
+                if (currentValue) learnFilter.value = currentValue;
+            }
         }
 
         function aktualizujUI() {
-            kUCeni = karticky.filter(k => k.vaha < 3);
+            kUCeni = getFilteredLearnCards();
             const celkem = karticky.length;
             const nauceno = karticky.filter(k => k.vaha >= 3).length;
             
@@ -654,52 +815,47 @@
             } else {
                 document.getElementById('emptyState').classList.add('hidden');
                 document.getElementById('kartaArea').classList.remove('hidden');
-                if (kUCeni.length > 0) vyberNahodnouKartu();
-                else {
-                    document.getElementById('otazkaText').innerText = "Všechny naučené! 🎉";
-                    document.getElementById('odpovedText').innerText = "Gratulujeme!";
-                    document.getElementById('kartaStatus').innerHTML = '<i data-feather="check-circle"></i> Hotovo';
+                if (kUCeni.length > 0) {
+                    vyberNahodnouKartu();
+                } else {
+                    // Pokud nic k učení, zobrazíme náhodnou kartu ze všech
+                    showAllCards();
                 }
             }
             renderCardsList();
         }
 
         function vyberNahodnouKartu() {
-            if (kUCeni.length === 0) return;
-            
-            const vahy = kUCeni.map(k => 3 - k.vaha);
-            const soucet = vahy.reduce((a, b) => a + b, 0);
-            let nahodne = Math.random() * soucet;
-            let vybrana = kUCeni[0];
-            
-            for (let i = 0; i < kUCeni.length; i++) {
-                if (nahodne < (3 - kUCeni[i].vaha)) {
-                    vybrana = kUCeni[i];
-                    break;
-                }
-                nahodne -= (3 - kUCeni[i].vaha);
+            if (kUCeni.length === 0) {
+                showAllCards();
+                return;
             }
             
-            aktualniKarta = vybrana;
+            // Jednoduchý náhodný výběr bez vah
+            const nahodnyIndex = Math.floor(Math.random() * kUCeni.length);
+            aktualniKarta = kUCeni[nahodnyIndex];
             otoceno = false;
             
             document.getElementById('flashcard').classList.remove('rotate-y-180');
-            document.getElementById('otazkaText').innerText = vybrana.otazka;
-            document.getElementById('odpovedText').innerText = vybrana.odpoved;
-            document.getElementById('kartaKategorie').innerHTML = `<i data-feather="folder"></i> ${vybrana.kategorie}`;
+            document.getElementById('otazkaText').innerText = aktualniKarta.otazka;
+            document.getElementById('odpovedText').innerText = aktualniKarta.odpoved;
+            document.getElementById('kartaKategorie').innerHTML = `<i data-feather="folder"></i> ${aktualniKarta.kategorie}`;
             
-            const index = kUCeni.findIndex(k => k.id === vybrana.id) + 1;
+            const index = kUCeni.findIndex(k => k.id === aktualniKarta.id) + 1;
             document.getElementById('pocitadlo').innerText = `${index}/${kUCeni.length}`;
             
-            // Status badges - jen ikona a text, bez emoji
+            updateCardStatus(aktualniKarta);
+            feather.replace();
+        }
+
+        function updateCardStatus(karta) {
             let statusIcon = 'clock';
             let statusText = 'Nová';
-            if (vybrana.vaha === 1) { statusIcon = 'refresh-cw'; statusText = 'Opakování'; }
-            else if (vybrana.vaha === 2) { statusIcon = 'alert-circle'; statusText = 'Téměř'; }
+            if (karta.vaha === 1) { statusIcon = 'refresh-cw'; statusText = 'Opakování'; }
+            else if (karta.vaha === 2) { statusIcon = 'alert-circle'; statusText = 'Téměř'; }
+            else if (karta.vaha >= 3) { statusIcon = 'check-circle'; statusText = 'Naučeno'; }
             
             document.getElementById('kartaStatus').innerHTML = `<i data-feather="${statusIcon}"></i> ${statusText}`;
-            
-            feather.replace();
         }
 
         window.otocKartu = function() {
@@ -716,12 +872,21 @@
             aktualniKarta.hodnoceni.push({ h, cas: new Date().toISOString() });
             
             ulozData();
-            vyberNahodnouKartu();
+            
+            // Znovu načteme k učení podle aktuálního filtru
+            kUCeni = getFilteredLearnCards();
+            
+            if (kUCeni.length > 0) {
+                vyberNahodnouKartu();
+            } else {
+                showAllCards();
+            }
+            
             showToast(h === 1 ? 'Výborně!' : h === 2 ? 'Dobře' : h === 3 ? 'Ještě zkusíme' : 'Zopakujeme');
         };
 
         window.openCardModal = function(k = null) {
-            document.getElementById('cardModalTitle').innerText = k ? 'Upravit' : 'Nová';
+            document.getElementById('cardModalTitle').innerText = k ? 'Upravit' : 'Nová kartička';
             document.getElementById('editCardId').value = k?.id || '';
             document.getElementById('cardQuestion').value = k?.otazka || '';
             document.getElementById('cardAnswer').value = k?.odpoved || '';
@@ -743,9 +908,20 @@
             
             if (id) {
                 const k = karticky.find(k => k.id == id);
-                if (k) { k.otazka = q; k.odpoved = a; k.kategorie = cat; }
+                if (k) { 
+                    k.otazka = q; 
+                    k.odpoved = a; 
+                    k.kategorie = cat; 
+                }
             } else {
-                karticky.push({ id: Date.now(), otazka: q, odpoved: a, kategorie: cat, vaha: 0, hodnoceni: [] });
+                karticky.push({ 
+                    id: Date.now(), 
+                    otazka: q, 
+                    odpoved: a, 
+                    kategorie: cat, 
+                    vaha: 0, 
+                    hodnoceni: [] 
+                });
             }
             
             ulozData();
@@ -753,30 +929,123 @@
         };
 
         window.deleteCard = function(id) {
-            if (confirm('Smazat?')) {
-                karticky = karticky.filter(k => k.id != id);
-                ulozData();
+            showConfirm(
+                'Smazat kartičku?',
+                'Tuto akci nelze vrátit.',
+                () => {
+                    karticky = karticky.filter(k => k.id != id);
+                    selectedCards.delete(id);
+                    ulozData();
+                }
+            );
+        };
+
+        // Nové funkce pro hromadné akce
+        window.toggleSelectAll = function() {
+            const checkbox = document.getElementById('selectAllCheckbox');
+            const cards = document.querySelectorAll('.card-checkbox-item');
+            
+            cards.forEach(card => {
+                card.checked = checkbox.checked;
+                if (checkbox.checked) {
+                    selectedCards.add(parseInt(card.dataset.id));
+                } else {
+                    selectedCards.delete(parseInt(card.dataset.id));
+                }
+            });
+            
+            updateSelectedCount();
+        };
+
+        window.toggleSelectCard = function(id, checked) {
+            if (checked) {
+                selectedCards.add(id);
+            } else {
+                selectedCards.delete(id);
+                document.getElementById('selectAllCheckbox').checked = false;
             }
+            updateSelectedCount();
+        };
+
+        function updateSelectedCount() {
+            document.getElementById('selectedCount').innerText = `${selectedCards.size} vybráno`;
+        }
+
+        window.resetSelectedCards = function() {
+            if (selectedCards.size === 0) {
+                showToast('Žádné kartičky nevybrány');
+                return;
+            }
+            
+            showConfirm(
+                'Resetovat vybrané?',
+                `${selectedCards.size} kartičkám bude nastavena váha 0.`,
+                () => {
+                    karticky.forEach(k => {
+                        if (selectedCards.has(k.id)) {
+                            k.vaha = 0;
+                            k.hodnoceni = [];
+                        }
+                    });
+                    ulozData();
+                    selectedCards.clear();
+                    document.getElementById('selectAllCheckbox').checked = false;
+                    showToast('Vybrané kartičky resetovány');
+                }
+            );
+        };
+
+        window.deleteSelectedCards = function() {
+            if (selectedCards.size === 0) {
+                showToast('Žádné kartičky nevybrány');
+                return;
+            }
+            
+            showConfirm(
+                'Smazat vybrané?',
+                `${selectedCards.size} kartiček bude trvale smazáno.`,
+                () => {
+                    karticky = karticky.filter(k => !selectedCards.has(k.id));
+                    selectedCards.clear();
+                    document.getElementById('selectAllCheckbox').checked = false;
+                    ulozData();
+                    showToast('Vybrané kartičky smazány');
+                }
+            );
         };
 
         function renderCardsList() {
             const f = document.getElementById('categoryFilter')?.value || 'all';
             const filtered = f === 'all' ? karticky : karticky.filter(k => k.kategorie === f);
             
-            document.getElementById('cardsList').innerHTML = filtered.length ? filtered.map(k => `
+            document.getElementById('cardsList').innerHTML = filtered.length ? filtered.map(k => {
+                const statusIcon = k.vaha >= 3 ? 'check-circle' : k.vaha === 2 ? 'alert-circle' : k.vaha === 1 ? 'refresh-cw' : 'clock';
+                const statusColor = k.vaha >= 3 ? 'text-green-500' : k.vaha === 2 ? 'text-orange-500' : 'text-blue-500';
+                
+                return `
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="category-tag"><i data-feather="folder"></i> ${k.kategorie}</span>
-                        <div class="flex gap-1">
-                            <button onclick='openCardModal(${JSON.stringify(k).replace(/'/g, "\\'")})' class="p-2 bg-blue-50 rounded-lg"><i data-feather="edit-2" class="w-4 h-4 text-blue-500"></i></button>
-                            <button onclick="deleteCard(${k.id})" class="p-2 bg-red-50 rounded-lg"><i data-feather="trash-2" class="w-4 h-4 text-red-500"></i></button>
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" class="card-checkbox card-checkbox-item mt-1" data-id="${k.id}" onchange="toggleSelectCard(${k.id}, this.checked)" ${selectedCards.has(k.id) ? 'checked' : ''}>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex gap-2">
+                                    <span class="category-tag"><i data-feather="folder"></i> ${k.kategorie}</span>
+                                    <span class="status-badge ${statusColor}"><i data-feather="${statusIcon}"></i> Váha: ${k.vaha}</span>
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick='openCardModal(${JSON.stringify(k).replace(/'/g, "\\'")})' class="p-2 bg-blue-50 rounded-lg"><i data-feather="edit-2" class="w-4 h-4 text-blue-500"></i></button>
+                                    <button onclick="deleteCard(${k.id})" class="p-2 bg-red-50 rounded-lg"><i data-feather="trash-2" class="w-4 h-4 text-red-500"></i></button>
+                                </div>
+                            </div>
+                            <p class="font-medium mb-1">❓ ${k.otazka}</p>
+                            <p class="text-sm text-slate-600">💡 ${k.odpoved}</p>
                         </div>
                     </div>
-                    <p class="font-medium mb-1">❓ ${k.otazka}</p>
-                    <p class="text-sm text-slate-600">💡 ${k.odpoved}</p>
                 </div>
-            `).join('') : '<div class="text-center py-8 text-slate-500">Žádné kartičky</div>';
+            `}).join('') : '<div class="text-center py-8 text-slate-500">Žádné kartičky</div>';
+            
             feather.replace();
+            updateSelectedCount();
         }
 
         window.filterCards = renderCardsList;
@@ -794,7 +1063,7 @@
         window.addCategory = function() {
             const n = document.getElementById('newCategoryName').value.trim();
             if (!n) return alert('Zadejte název');
-            if (kategorie.includes(n)) return alert('Existuje');
+            if (kategorie.includes(n)) return alert('Kategorie již existuje');
             kategorie.push(n);
             ulozData();
             renderCategoriesList();
@@ -803,32 +1072,49 @@
 
         window.confirmDeleteCategory = function(nazev) {
             const pocet = karticky.filter(k => k.kategorie === nazev).length;
+            kategorieKeSmazani = nazev;
+            
             if (pocet === 0) {
-                if (confirm(`Smazat "${nazev}"?`)) {
-                    kategorie = kategorie.filter(k => k !== nazev);
-                    ulozData();
-                    renderCategoriesList();
-                }
+                showConfirm(
+                    'Smazat kategorii?',
+                    `Kategorie "${nazev}" bude smazána.`,
+                    () => {
+                        kategorie = kategorie.filter(k => k !== kategorieKeSmazani);
+                        ulozData();
+                        renderCategoriesList();
+                    }
+                );
             } else {
-                kategorieKeSmazani = nazev;
-                document.getElementById('confirmMessage').innerHTML = `Kategorie "${nazev}" obsahuje ${pocet} kartiček. Budou také smazány.`;
-                document.getElementById('confirmModal').style.display = 'flex';
+                showConfirm(
+                    'Smazat kategorii?',
+                    `Kategorie "${nazev}" obsahuje ${pocet} kartiček. Budou také smazány.`,
+                    () => {
+                        karticky = karticky.filter(k => k.kategorie !== kategorieKeSmazani);
+                        kategorie = kategorie.filter(k => k !== kategorieKeSmazani);
+                        ulozData();
+                        closeCategoryModal();
+                        renderCategoriesList();
+                    }
+                );
             }
         };
 
+        function showConfirm(title, message, onConfirm) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerHTML = message;
+            document.getElementById('confirmModal').style.display = 'flex';
+            confirmAction = onConfirm;
+        }
+
         window.closeConfirmModal = function() {
             document.getElementById('confirmModal').style.display = 'none';
-            kategorieKeSmazani = null;
+            confirmAction = null;
         };
 
-        window.executeDeleteCategory = function() {
-            if (kategorieKeSmazani) {
-                karticky = karticky.filter(k => k.kategorie !== kategorieKeSmazani);
-                kategorie = kategorie.filter(k => k !== kategorieKeSmazani);
-                ulozData();
+        window.executeConfirmedAction = function() {
+            if (confirmAction) {
+                confirmAction();
                 closeConfirmModal();
-                closeCategoryModal();
-                renderCategoriesList();
             }
         };
 
@@ -870,7 +1156,8 @@
             if (karticky.length === 0) {
                 karticky = [
                     { id: 1, otazka: "Kdo byl Sigmund Freud?", odpoved: "Zakladatel psychoanalýzy", kategorie: "Obecná", vaha: 0, hodnoceni: [] },
-                    { id: 2, otazka: "Co je behaviorismus?", odpoved: "Směr zaměřený na chování", kategorie: "Obecná", vaha: 0, hodnoceni: [] }
+                    { id: 2, otazka: "Co je behaviorismus?", odpoved: "Směr zaměřený na chování", kategorie: "Obecná", vaha: 0, hodnoceni: [] },
+                    { id: 3, otazka: "Co zkoumá kognitivní psychologie?", odpoved: "Myšlení, paměť, vnímání", kategorie: "Obecná", vaha: 0, hodnoceni: [] }
                 ];
             }
             ulozData();
