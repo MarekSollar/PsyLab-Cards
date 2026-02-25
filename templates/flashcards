@@ -1,0 +1,66 @@
+{
+  "type": "flashcards",
+  "exportDate": "2024-01-15T10:30:00.000Z",
+  "flashcards": [
+    {
+      "id": 1,
+      "otazka": "Kdo byl Sigmund Freud?",
+      "odpoved": "Rakouský neurolog a zakladatel psychoanalýzy",
+      "kategorie": "Obecná"
+    },
+    {
+      "id": 2,
+      "otazka": "Co je behaviorismus?",
+      "odpoved": "Psychologický směr zaměřený na pozorovatelné chování, nikoli na mysl",
+      "kategorie": "Obecná"
+    },
+    {
+      "id": 3,
+      "otazka": "Kdo je autorem teorie kognitivního vývoje?",
+      "odpoved": "Jean Piaget - švýcarský psycholog, který popsal 4 stádia vývoje myšlení",
+      "kategorie": "Vývojová"
+    },
+    {
+      "id": 4,
+      "otazka": "Jaké jsou 4 fáze spánkového cyklu?",
+      "odpoved": "NREM 1, NREM 2, NREM 3 a REM spánek",
+      "kategorie": "Biopsychologie"
+    },
+    {
+      "id": 5,
+      "otazka": "Co je to klasické podmiňování?",
+      "odpoved": "Učení, kdy se neutrální podnět spojí s přirozenou reakcí (Pavlovovi psi)",
+      "kategorie": "Behaviorální"
+    },
+    {
+      "id": 6,
+      "otazka": "Kdo založil první psychologickou laboratoř?",
+      "odpoved": "Wilhelm Wundt v Lipsku roku 1879",
+      "kategorie": "Historie"
+    },
+    {
+      "id": 7,
+      "otazka": "Co je to kognitivní disonance?",
+      "odpoved": "Nepříjemný pocit z rozporu mezi našimi postoji a chováním",
+      "kategorie": "Sociální"
+    },
+    {
+      "id": 8,
+      "otazka": "Jaké jsou 3 složky paměti dle Atkinsona a Shiffrina?",
+      "odpoved": "Senzorická paměť, krátkodobá paměť a dlouhodobá paměť",
+      "kategorie": "Kognitivní"
+    },
+    {
+      "id": 9,
+      "otazka": "Co je to seberealizace v Maslowově hierarchii potřeb?",
+      "odpoved": "Nejvyšší potřeba - naplnění vlastního potenciálu",
+      "kategorie": "Humanistická"
+    },
+    {
+      "id": 10,
+      "otazka": "Které jsou hlavní mozkové laloky?",
+      "odpoved": "Čelní, temenní, spánkový a týlní",
+      "kategorie": "Biopsychologie"
+    }
+  ]
+}
