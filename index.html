@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>PsyLab - Flashcards & Kvízy</title>
+    
+    <!-- Manifest pro instalaci -->
+    <link rel="manifest" href="data:application/manifest+json,{
+        &quot;name&quot;: &quot;PsyLab Flashcards&quot;,
+        &quot;short_name&quot;: &quot;PsyLab&quot;,
+        &quot;description&quot;: &quot;Flashcards a kvízy pro studenty psychologie&quot;,
+        &quot;start_url&quot;: &quot;.&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;background_color&quot;: &quot;#f8fafc&quot;,
+        &quot;theme_color&quot;: &quot;#0ea5e9&quot;,
+        &quot;icons&quot;: [{
+            &quot;src&quot;: &quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230ea5e9'/%3E%3Cstop offset='100%25' stop-color='%23a855f7'/%3E%3C/linearGradient%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial'%3E🧠%3C/text%3E%3C/svg%3E&quot;,
+            &quot;sizes&quot;: &quot;192x192&quot;,
+            &quot;type&quot;: &quot;image/svg+xml&quot;
+        }]
+    }">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen p-4">
+
+    <div class="max-w-md mx-auto">
+        
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-4 animate-slide-up">
+            <div>
+                <h1 class="text-2xl font-bold">PsyLab</h1>
+                <p class="text-sm text-slate-500" id="headerSubtitle">Flashcards • <span id="statsFlashcards">0/0</span></p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleDarkMode()" id="darkModeToggle" class="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
+                    <i data-feather="moon" class="w-5 h-5 text-slate-600"></i>
+                </button>
+                <button onclick="openCategoryModal()" class="w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all border border-slate-100">
+                    <i data-feather="tag" class="w-5 h-5 text-purple-500"></i>
+                </button>
+                <!-- Tlačítko plus - nyní podle aktivního tabu -->
+                <button onclick="openAddModalByCurrentTab()" class="w-10 h-10 gradient-bg rounded-xl shadow-md flex items-center justify-center hover:shadow-lg active:scale-95 transition-all">
+                    <i data-feather="plus" class="w-5 h-5 text-white"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Install button -->
+        <div id="installContainer" class="mb-4 hidden">
+            <button onclick="installApp()" class="w-full bg-green-500 text-white p-3 rounded-xl shadow-md flex items-center justify-center gap-2 hover:bg-green-600 active:scale-95 transition-all">
+                <i data-feather="download" class="w-4 h-4"></i>
+                <span>Nainstalovat aplikaci do telefonu</span>
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="glass-effect rounded-2xl p-1 mb-4 animate-slide-up" style="animation-delay: 0.1s">
+            <div class="flex gap-1">
+                <button onclick="switchMainTab('flashcards')" id="mainTabFlashcards" class="nav-tab active">
+                    <i data-feather="layers" class="w-4 h-4 inline mr-2"></i>
+                    Flashcards
+                </button>
+                <button onclick="switchMainTab('quiz')" id="mainTabQuiz" class="nav-tab">
+                    <i data-feather="help-circle" class="w-4 h-4 inline mr-2"></i>
+                    Kvízy
+                </button>
+            </div>
+        </div>
+
+        <!-- FLASHCARDS SECTION -->
+        <div id="flashcardsSection">
+            <!-- Sub-tabs for Flashcards -->
+            <div class="glass-effect rounded-2xl p-1 mb-4 animate-slide-up" style="animation-delay: 0.12s">
+                <div class="flex gap-1">
+                    <button onclick="switchFlashcardTab('learn')" id="flashcardTabLearn" class="tab flex-1 active">
+                        <i data-feather="book-open" class="w-4 h-4 inline mr-2"></i>
+                        Učení
+                    </button>
+                    <button onclick="switchFlashcardTab('manage')" id="flashcardTabManage" class="tab flex-1">
+                        <i data-feather="edit-3" class="w-4 h-4 inline mr-2"></i>
+                        Správa
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="progressSection" class="gradient-bg rounded-2xl p-5 text-white shadow-xl mb-4 animate-slide-up" style="animation-delay: 0.15s">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="text-white/80 text-sm">Flashcards - postup</p>
+                        <p class="text-2xl font-bold"><span id="flashcardsKUceni">0</span> k učení</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <i data-feather="trending-up" class="w-6 h-6 text-white"></i>
+                    </div>
+                </div>
+                <div class="h-2 bg-white/30 rounded-full overflow-hidden">
+                    <div id="flashcardsProgressBar" class="h-full bg-white rounded-full" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between mt-3 text-sm text-white/80">
+                    <span>Naučeno: <span class="font-bold text-white" id="flashcardsNaucedo">0</span></span>
+                    <span>Celkem: <span class="font-bold text-white" id="flashcardsCelkem">0</span></span>
+                </div>
+            </div>
+
+            <!-- LEARN TAB (Flashcards) -->
+            <div id="flashcardsLearnTab">
+                <!-- Ovládací prvky -->
+                <div class="flex gap-2 mb-4 animate-slide-up" style="animation-delay: 0.2s">
+                    <button onclick="resetFlashcardsProgress()" class="control-btn">
+                        <i data-feather="refresh-cw" class="w-4 h-4 text-blue-500"></i>
+                        <span>Reset vše</span>
+                    </button>
+                    <button onclick="reshuffleFlashcards()" class="control-btn">
+                        <i data-feather="shuffle" class="w-4 h-4 text-purple-500"></i>
+                        <span>Zamíchat</span>
+                    </button>
+                    <button onclick="showAllFlashcards()" class="control-btn">
+                        <i data-feather="list" class="w-4 h-4 text-green-500"></i>
+                        <span>Všechny</span>
+                    </button>
+                </div>
+
+                <!-- Výběr kategorie -->
+                <div class="mb-4 animate-slide-up" style="animation-delay: 0.25s">
+                    <select id="flashcardsLearnFilter" onchange="filterFlashcardsLearn()" class="w-full p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                        <option value="all">Všechny kategorie</option>
+                    </select>
+                </div>
+
+                <!-- Empty state -->
+                <div id="flashcardsEmptyState" class="text-center py-12 bg-white rounded-3xl shadow-sm border border-slate-100 hidden">
+                    <div class="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="book" class="w-12 h-12 text-slate-400"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-slate-700 mb-2">Žádné flashcards</h2>
+                    <p class="text-slate-500 mb-6">Přidejte svou první kartičku</p>
+                    <button onclick="openAddModal('flashcard')" class="btn-primary inline-flex items-center gap-2">
+                        <i data-feather="plus" class="w-4 h-4"></i>
+                        Přidat flashcard
+                    </button>
+                </div>
+
+                <!-- Flashcard area -->
+                <div id="flashcardsCardArea" class="hidden">
+                    <!-- Card metadata -->
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="category-tag" id="flashcardsKartaKategorie">
+                                <i data-feather="folder" class="w-3 h-3"></i>
+                                <span>Obecná</span>
+                            </span>
+                            <span class="status-badge bg-orange-100 text-orange-600" id="flashcardsKartaStatus">
+                                <i data-feather="clock" class="w-3 h-3"></i>
+                                <span>Nová</span>
+                            </span>
+                        </div>
+                        <span class="text-sm text-slate-500" id="flashcardsPocitadlo">1/5</span>
+                    </div>
+
+                    <!-- Flashcard -->
+                    <div class="perspective mb-4 flashcard-container" onclick="otocFlashcard()">
+                        <div id="flashcardsFlashcard" class="flashcard">
+                            <div class="flashcard-front">
+                                <div class="flex-1 flex items-center justify-center text-center">
+                                    <p class="text-xl font-medium text-slate-800 leading-relaxed" id="flashcardsOtazkaText"></p>
+                                </div>
+                                <div class="text-center text-slate-400 text-sm mt-2 flex items-center justify-center gap-1">
+                                    <i data-feather="mouse-pointer" class="w-3 h-3"></i>
+                                    Klepněte pro otočení
+                                </div>
+                            </div>
+                            <div class="flashcard-back">
+                                <div class="flex-1 flex items-center justify-center text-center overflow-y-auto">
+                                    <p class="text-lg text-slate-700 leading-relaxed" id="flashcardsOdpovedText"></p>
+                                </div>
+                                <div class="text-center text-primary-400 text-sm mt-2 flex items-center justify-center gap-1">
+                                    <i data-feather="mouse-pointer" class="w-3 h-3"></i>
+                                    Zpět na otázku
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rating buttons -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="hodnotitFlashcard(1)" class="rating-btn" style="background: #dcfce7; color: #166534; border-color: #bbf7d0;">
+                            <i data-feather="thumbs-up" class="text-emerald-600"></i>
+                            <span>Ano</span>
+                        </button>
+                        <button onclick="hodnotitFlashcard(2)" class="rating-btn" style="background: #dbeafe; color: #1e40af; border-color: #bfdbfe;">
+                            <i data-feather="thumbs-up" class="text-blue-600"></i>
+                            <span>Spíše ano</span>
+                        </button>
+                        <button onclick="hodnotitFlashcard(3)" class="rating-btn" style="background: #fed7aa; color: #9a3412; border-color: #fdba74;">
+                            <i data-feather="thumbs-down" class="text-orange-600"></i>
+                            <span>Spíše ne</span>
+                        </button>
+                        <button onclick="hodnotitFlashcard(4)" class="rating-btn" style="background: #fee2e2; color: #991b1b; border-color: #fecaca;">
+                            <i data-feather="thumbs-down" class="text-red-600"></i>
+                            <span>Ne</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MANAGE TAB (Flashcards) -->
+            <div id="flashcardsManageTab" class="hidden">
+                <!-- Export/Import -->
+                <div class="flex gap-2 mb-4">
+                    <button onclick="exportFlashcards()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                        <i data-feather="download" class="w-4 h-4 text-green-500"></i>
+                        <span class="text-sm font-medium">Export</span>
+                    </button>
+                    <button onclick="document.getElementById('flashcardsImportFile').click()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                        <i data-feather="upload" class="w-4 h-4 text-blue-500"></i>
+                        <span class="text-sm font-medium">Import</span>
+                    </button>
+                    <input type="file" id="flashcardsImportFile" accept=".json" style="display: none;" onchange="importFlashcards(event)">
+                </div>
+
+                <!-- Hromadné akce -->
+                <div class="flex gap-2 mb-4">
+                    <button onclick="resetSelectedFlashcards()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                        <i data-feather="refresh-ccw" class="w-4 h-4 text-orange-500"></i>
+                        <span class="text-sm font-medium">Reset vybraných</span>
+                    </button>
+                    <button onclick="deleteSelectedFlashcards()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                        <i data-feather="trash-2" class="w-4 h-4 text-red-500"></i>
+                        <span class="text-sm font-medium">Smazat vybrané</span>
+                    </button>
+                </div>
+
+                <!-- Filter -->
+                <div class="mb-4">
+                    <select id="flashcardsFilter" onchange="filterFlashcards()" class="w-full p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                        <option value="all">Všechny kategorie</option>
+                    </select>
+                </div>
+
+                <!-- Select All -->
+                <div class="flex items-center justify-between mb-3 bg-white p-3 rounded-xl shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="flashcardsSelectAll" onchange="toggleSelectAllFlashcards()" class="card-checkbox">
+                        <label for="flashcardsSelectAll" class="text-sm font-medium">Vybrat vše</label>
+                    </div>
+                    <span class="text-sm text-slate-500" id="flashcardsSelectedCount">0 vybráno</span>
+                </div>
+
+                <!-- Cards list -->
+                <div id="flashcardsList" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- QUIZ SECTION -->
+        <div id="quizSection" class="hidden">
+            <!-- Sub-tabs for Quiz -->
+            <div class="glass-effect rounded-2xl p-1 mb-4 animate-slide-up" style="animation-delay: 0.12s">
+                <div class="flex gap-1">
+                    <button onclick="switchQuizTab('practice')" id="quizTabPractice" class="tab flex-1 active">
+                        <i data-feather="help-circle" class="w-4 h-4 inline mr-2"></i>
+                        Procvičování
+                    </button>
+                    <button onclick="switchQuizTab('history')" id="quizTabHistory" class="tab flex-1">
+                        <i data-feather="bar-chart-2" class="w-4 h-4 inline mr-2"></i>
+                        Historie
+                    </button>
+                    <button onclick="switchQuizTab('manage')" id="quizTabManage" class="tab flex-1">
+                        <i data-feather="edit-3" class="w-4 h-4 inline mr-2"></i>
+                        Správa
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz stats -->
+            <div id="quizStatsSection" class="gradient-bg rounded-2xl p-5 text-white shadow-xl mb-4 animate-slide-up" style="animation-delay: 0.15s">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="text-white/80 text-sm">Kvízy - celková statistika</p>
+                        <p class="text-2xl font-bold"><span id="quizTotalQuestions">0</span> otázek</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <i data-feather="award" class="w-6 h-6 text-white"></i>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-sm text-white/80">
+                    <div class="text-center">
+                        <div class="font-bold text-white text-lg" id="quizCompletedCount">0</div>
+                        <div>Absolvováno</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-bold text-white text-lg" id="quizAverageScore">0%</div>
+                        <div>Průměr</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-bold text-white text-lg" id="quizBestScore">0%</div>
+                        <div>Nejlepší</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRACTICE TAB -->
+            <div id="quizPracticeTab">
+                <!-- Quiz controls -->
+                <div class="flex gap-2 mb-4 animate-slide-up" style="animation-delay: 0.2s">
+                    <button onclick="startNewQuiz()" class="control-btn">
+                        <i data-feather="play" class="w-4 h-4 text-green-500"></i>
+                        <span>Nový kvíz</span>
+                    </button>
+                    <button onclick="shuffleQuiz()" class="control-btn">
+                        <i data-feather="shuffle" class="w-4 h-4 text-purple-500"></i>
+                        <span>Zamíchat</span>
+                    </button>
+                </div>
+
+                <!-- Quiz settings -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4 animate-slide-up" style="animation-delay: 0.25s">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2">
+                        <i data-feather="settings" class="w-4 h-4 text-slate-500"></i>
+                        Nastavení kvízu
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm text-slate-600 mb-2">Kategorie</label>
+                            <select id="quizCategoryFilter" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                <option value="all">Všechny kategorie</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-600 mb-2">Počet otázek</label>
+                            <select id="quizQuestionCount" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                <option value="5">5 otázek</option>
+                                <option value="10" selected>10 otázek</option>
+                                <option value="15">15 otázek</option>
+                                <option value="20">20 otázek</option>
+                                <option value="all">Všechny dostupné</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz progress -->
+                <div id="quizActiveArea" class="hidden">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-sm font-medium" id="quizQuestionCounter">Otázka 1/10</span>
+                            <span class="status-badge bg-blue-100 text-blue-600">
+                                <i data-feather="check-circle" class="w-3 h-3"></i>
+                                <span id="quizScore">0/0 správně</span>
+                            </span>
+                        </div>
+                        <div class="quiz-progress-bar mb-2">
+                            <div id="quizProgressFill" class="quiz-progress-fill" style="width: 10%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-4">
+                        <p class="text-lg font-medium mb-6" id="quizQuestion">Načítám otázku...</p>
+                        <div id="quizOptions" class="space-y-3"></div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="flex gap-3">
+                        <button onclick="previousQuizQuestion()" id="quizPrevBtn" class="btn-secondary flex-1 flex items-center justify-center gap-2" disabled>
+                            <i data-feather="arrow-left" class="w-4 h-4"></i>
+                            Předchozí
+                        </button>
+                        <button onclick="nextQuizQuestion()" id="quizNextBtn" class="btn-primary flex-1 flex items-center justify-center gap-2">
+                            Další <i data-feather="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div id="quizEmptyState" class="text-center py-12 bg-white rounded-3xl shadow-sm border border-slate-100">
+                    <div class="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="help-circle" class="w-12 h-12 text-slate-400"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-slate-700 mb-2">Žádné kvízové otázky</h2>
+                    <p class="text-slate-500 mb-6">Přidejte otázky do kvízu</p>
+                    <button onclick="openAddModal('quiz')" class="btn-primary inline-flex items-center gap-2">
+                        <i data-feather="plus" class="w-4 h-4"></i>
+                        Přidat otázku
+                    </button>
+                </div>
+
+                <!-- Results -->
+                <div id="quizResultsArea" class="hidden text-center py-8 bg-white rounded-3xl shadow-sm border border-slate-100">
+                    <div class="w-24 h-24 bg-green-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="award" class="w-12 h-12 text-green-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-2" id="quizResultScore">0/10</h2>
+                    <p class="text-slate-600 mb-6" id="quizResultMessage">Výborně!</p>
+                    <button onclick="startNewQuiz()" class="btn-primary flex items-center gap-2 mx-auto">
+                        <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                        Nový kvíz
+                    </button>
+                </div>
+            </div>
+
+            <!-- HISTORY TAB -->
+            <div id="quizHistoryTab" class="hidden">
+                <!-- Filtry -->
+                <div class="flex gap-2 mb-4 animate-slide-up" style="animation-delay: 0.2s">
+                    <select id="historyTimeFilter" onchange="renderQuizHistory()" class="flex-1 p-3 bg-white rounded-xl border border-slate-200">
+                        <option value="all">Všechna historie</option>
+                        <option value="7">Posledních 7 dní</option>
+                        <option value="30">Posledních 30 dní</option>
+                        <option value="90">Poslední 3 měsíce</option>
+                    </select>
+                    <button onclick="clearQuizHistory()" class="p-3 bg-red-50 text-red-600 rounded-xl border border-red-200">
+                        <i data-feather="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Graf -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2">
+                        <i data-feather="trending-up" class="w-4 h-4 text-blue-500"></i>
+                        Vývoj úspěšnosti
+                    </h3>
+                    <div id="chartContainer" class="h-48 flex items-end justify-around gap-1"></div>
+                </div>
+
+                <!-- Kategorie statistiky -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2">
+                        <i data-feather="pie-chart" class="w-4 h-4 text-purple-500"></i>
+                        Úspěšnost podle kategorií
+                    </h3>
+                    <div id="categoryStats" class="space-y-3"></div>
+                </div>
+
+                <!-- Poslední výsledky -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2">
+                        <i data-feather="clock" class="w-4 h-4 text-orange-500"></i>
+                        Posledních 10 výsledků
+                    </h3>
+                    <div id="recentResults" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- MANAGE TAB (Quiz) -->
+            <div id="quizManageTab" class="hidden">
+                <!-- Export/Import -->
+                <div class="flex gap-2 mb-4">
+                    <button onclick="exportQuiz()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                        <i data-feather="download" class="w-4 h-4 text-green-500"></i>
+                        <span class="text-sm font-medium">Export</span>
+                    </button>
+                    <button onclick="document.getElementById('quizImportFile').click()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                        <i data-feather="upload" class="w-4 h-4 text-blue-500"></i>
+                        <span class="text-sm font-medium">Import</span>
+                    </button>
+                    <input type="file" id="quizImportFile" accept=".json" style="display: none;" onchange="importQuiz(event)">
+                </div>
+
+                <!-- Hromadné akce -->
+                <div class="flex gap-2 mb-4">
+                    <button onclick="deleteSelectedQuiz()" class="flex-1 bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex items-center justify-center gap-2 hover:shadow-md active:scale-95 transition-all">
+                        <i data-feather="trash-2" class="w-4 h-4 text-red-500"></i>
+                        <span class="text-sm font-medium">Smazat vybrané</span>
+                    </button>
+                </div>
+
+                <!-- Filter -->
+                <div class="mb-4">
+                    <select id="quizFilter" onchange="filterQuiz()" class="w-full p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                        <option value="all">Všechny kategorie</option>
+                    </select>
+                </div>
+
+                <!-- Select All -->
+                <div class="flex items-center justify-between mb-3 bg-white p-3 rounded-xl shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="quizSelectAll" onchange="toggleSelectAllQuiz()" class="card-checkbox">
+                        <label for="quizSelectAll" class="text-sm font-medium">Vybrat vše</label>
+                    </div>
+                    <span class="text-sm text-slate-500" id="quizSelectedCount">0 vybráno</span>
+                </div>
+
+                <!-- Questions list -->
+                <div id="quizList" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL pro přidání/úpravu -->
+    <div id="itemModal" class="fixed inset-0 modal hidden items-end justify-center p-4 z-50" style="display: none;">
+        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl animate-slide-up">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-slate-800" id="modalTitle">Nová položka</h3>
+                <button onclick="closeItemModal()" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200">
+                    <i data-feather="x" class="w-5 h-5 text-slate-500"></i>
+                </button>
+            </div>
+            
+            <input type="hidden" id="modalItemId">
+            <input type="hidden" id="modalItemType">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Otázka</label>
+                    <input type="text" id="modalQuestion" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200">
+                </div>
+                
+                <!-- Pole pro flashcards odpověď -->
+                <div id="answerField">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Odpověď</label>
+                    <textarea id="modalAnswer" rows="2" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200"></textarea>
+                </div>
+                
+                <!-- Pole pro kvízové možnosti -->
+                <div id="quizOptionsField" class="hidden">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Možnosti odpovědí</label>
+                    
+                    <div class="space-y-3">
+                        <div class="flex gap-2 items-center">
+                            <span class="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center text-sm font-bold text-blue-600">A</span>
+                            <input type="text" id="modalOption1" placeholder="Možnost 1" class="flex-1 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        </div>
+                        
+                        <div class="flex gap-2 items-center">
+                            <span class="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center text-sm font-bold text-blue-600">B</span>
+                            <input type="text" id="modalOption2" placeholder="Možnost 2" class="flex-1 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        </div>
+                        
+                        <div class="flex gap-2 items-center">
+                            <span class="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center text-sm font-bold text-blue-600">C</span>
+                            <input type="text" id="modalOption3" placeholder="Možnost 3" class="flex-1 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        </div>
+                        
+                        <div class="flex gap-2 items-center">
+                            <span class="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center text-sm font-bold text-blue-600">D</span>
+                            <input type="text" id="modalOption4" placeholder="Možnost 4" class="flex-1 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Správná odpověď</label>
+                            <select id="modalCorrectIndex" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <option value="0">Možnost A</option>
+                                <option value="1">Možnost B</option>
+                                <option value="2">Možnost C</option>
+                                <option value="3">Možnost D</option>
+                            </select>
+                        </div>
+                        
+                        <p class="text-xs text-slate-500">Vyplňte alespoň 2 možnosti. Nevyplněné možnosti se ignorují.</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Kategorie</label>
+                    <select id="modalCategory" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-200"></select>
+                </div>
+                
+                <button onclick="saveItem()" class="btn-primary w-full py-4 mt-4">
+                    <i data-feather="check" class="w-4 h-4 inline mr-2"></i>
+                    Uložit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL pro kategorie -->
+    <div id="categoryModal" class="fixed inset-0 modal hidden items-end justify-center p-4 z-50" style="display: none;">
+        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl animate-slide-up">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-slate-800">Správa kategorií</h3>
+                <button onclick="closeCategoryModal()" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200">
+                    <i data-feather="x" class="w-5 h-5 text-slate-500"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex gap-2">
+                    <input type="text" id="newCategoryName" placeholder="Nová kategorie" class="flex-1 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <button onclick="addCategory()" class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center shadow-md">
+                        <i data-feather="plus" class="w-5 h-5 text-white"></i>
+                    </button>
+                </div>
+                <div id="categoriesList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM MODAL -->
+    <div id="confirmModal" class="fixed inset-0 modal hidden items-center justify-center p-4 z-[60]" style="display: none;">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl">
+            <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i data-feather="alert-triangle" class="w-8 h-8 text-red-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-center mb-2" id="confirmTitle">Potvrďte akci</h3>
+            <p class="text-slate-600 text-center mb-6" id="confirmMessage"></p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="btn-secondary flex-1">Zpět</button>
+                <button onclick="executeConfirmedAction()" id="confirmActionBtn" class="flex-1 bg-red-500 text-white py-4 rounded-xl font-medium hover:bg-red-600">
+                    Ano, smazat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript moduly - načítáme ve správném pořadí -->
+    <script src="js/defaults.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/flashcards.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Instalace PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installContainer').classList.remove('hidden');
+        });
+
+        window.installApp = function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                    document.getElementById('installContainer').classList.add('hidden');
+                });
+            }
+        };
+    </script>
+</body>
+</html>
